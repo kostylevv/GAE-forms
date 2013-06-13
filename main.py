@@ -38,7 +38,7 @@ class PS21Handler(webapp2.RequestHandler):
 					 'N' : 'A', 'O': 'B', 'P': 'C', 'Q': 'D', 'R': 'E', 'S': 'F',
 					 'T' : 'G', 'U': 'H', 'V': 'I', 'W': 'J', 'X': 'K', 'Y': 'L', 'Z': 'M'}
 		list_string = list(string_to_replace) #convert unicode word to list, 
-														 #to be able to access by index
+											  #to be able to access by index
 		#walking our word, char by char 
 		for i in range(0, len(list_string)):
 			if (repl_dict.has_key(list_string[i])):  #if we have replacement for current char
