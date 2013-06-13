@@ -26,7 +26,7 @@ class PS21Handler(webapp2.RequestHandler):
 		return s
 
 	# Encodes/decodes given string by ROT13 cipher (Caesar cipher)
-	#
+	# 13/06/13 Deployed at http://kostylevv.appspot.com/ps2-1
 	def rot13(self, string_to_replace):
 		#replacement dictionary
 		repl_dict = {'a' : 'n', 'b': 'o', 'c': 'p', 'd': 'q', 'e': 'r', 'f': 's',
