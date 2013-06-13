@@ -4,7 +4,7 @@
 import webapp2
 
 form="""
-<form method="post" action="/" >
+<form method="post" action="/ps2-1" >
 
 	<textarea name="text" >%(message)s</textarea>
 	<br />
@@ -15,15 +15,20 @@ form="""
 </form>
 """
 
-class MainHandler(webapp2.RequestHandler):
+class PS21Handler(webapp2.RequestHandler):
+
+	# Replaces some raw HTML chars to escape chars
+	#
 	def escape_html(self, s):
 		repl_dict = {'>' : '&gt;', '<': '&lt;', '"': '&quot;', '&': '&amp;'}
 		for i, j in repl_dict.iteritems():
 			s = s.replace(i, j)
 		return s
 
-	def rot13(self, s):
-		x = 'pairs: '
+	# Encodes/decodes given string by ROT13 cipher (Caesar cipher)
+	#
+	def rot13(self, string_to_replace):
+		#replacement dictionary
 		repl_dict = {'a' : 'n', 'b': 'o', 'c': 'p', 'd': 'q', 'e': 'r', 'f': 's',
 					 'g' : 't', 'h': 'u', 'i': 'v', 'k': 'x', 'l': 'y', 'm': 'z', 'j' : 'w',
 					 'n' : 'a', 'o': 'b', 'p': 'c', 'q': 'd', 'r': 'e', 's': 'f',
@@ -32,23 +37,15 @@ class MainHandler(webapp2.RequestHandler):
 					 'G' : 'T', 'H': 'U', 'I': 'V', 'K': 'X', 'L': 'Y', 'M': 'Z', 'J' : 'W',
 					 'N' : 'A', 'O': 'B', 'P': 'C', 'Q': 'D', 'R': 'E', 'S': 'F',
 					 'T' : 'G', 'U': 'H', 'V': 'I', 'W': 'J', 'X': 'K', 'Y': 'L', 'Z': 'M'}
-		slist = list(s)
-		for i in range(0, len(slist)):
-			#x += 'letter is '
-			#x += letter
-			if (repl_dict.has_key(slist[i])):
-				slist[i] = repl_dict[slist[i]]
-	
-		#for i, j in repl_dict.iteritems():
-			#s = s.replace(i, j)
-		#	x += 'pair: '
-		#	x += i
-		#	x += j
-		#	x += '; '
-		#x += 'And result is: '
-		#x += s;
-		s = ''.join(slist)
-		return s
+		list_string = list(string_to_replace) #convert unicode word to list, 
+														 #to be able to access by index
+		#walking our word, char by char 
+		for i in range(0, len(list_string)):
+			if (repl_dict.has_key(list_string[i])):  #if we have replacement for current char
+				list_string[i] = repl_dict[list_string[i]] #then - replace		
+		
+		string_to_replace = ''.join(list_string) #finally joining our list back to string
+		return string_to_replace
 
 	def write_form(self, message, error=""):
 		self.response.out.write(form % {"error": error, "message": message})
@@ -70,6 +67,6 @@ class TestHandler(webapp2.RequestHandler):
 
 		#self.response.headers['Content-Type'] = 'text/plain'
 
-app = webapp2.WSGIApplication([('/', MainHandler),
+app = webapp2.WSGIApplication([('/ps2-1', PS21Handler),
 							   ('/testform', TestHandler)], 
 							   debug=True)
