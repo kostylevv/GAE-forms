@@ -8,7 +8,11 @@ form="""
 	<input type="radio" name="q" value="1">
 	<input type="radio" name="q" value="2">
 	<input type="radio" name="q" value="3"> <br />
+
+
 	<div style="color: red;">%(error)s</div>
+	
+
 	<input type="submit" >
 </form>
 """
