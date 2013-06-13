@@ -2,6 +2,11 @@
 #
 
 import webapp2
+import re
+
+USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+PASS_RE = re.compile(r"^.{3,20}$")  
+EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 
 form="""
 <form method="post" action="/ps2-1" >
@@ -10,6 +15,23 @@ form="""
 	<br />
 
 	<div style="color: red;">%(error)s</div>
+	<input type="submit" >
+
+</form>
+"""
+
+form_signup="""
+<form method="post" action="/ps2-2" >
+
+	<div> Username: <input type = "text" name = "username" value = "%(username)s" /> <span style="color: red;"> %(username_error)s </span></div>
+	<br />
+	<div> Password: <input type = "text" name = "password" /> <span style="color: red;"> %(password_error)s </span></div>
+	<br />
+	<div> Verify password: <input type = "text" name = "verify" /> <span style="color: red;"> %(verify_error)s </span></div>
+	<br />
+	<div> Email: <input type = "text" name = "email" value = "%(email)s" /> <span style="color: red;"> %(email_error)s </span></div>
+	<br />
+	
 	<input type="submit" >
 
 </form>
@@ -60,13 +82,75 @@ class PS21Handler(webapp2.RequestHandler):
 		self.write_form(message, text)
 
 
-class TestHandler(webapp2.RequestHandler):
-	def get(self):
-		q = self.request.get("text")
-		self.response.write(text)
+class PS22Handler(webapp2.RequestHandler):
+	def valid_username(self, username):
+		return USER_RE.match(username)
 
-		#self.response.headers['Content-Type'] = 'text/plain'
+	def valid_password(self, password):
+		return PASS_RE.match(password)
+
+	def valid_email(self, email):
+		if email == '':
+			return True
+		else:
+			return EMAIL_RE.match(email)
+		
+
+	def write_form(self, username, email, username_error, 
+				   password_error, verify_error, email_error):
+
+		self.response.out.write(form_signup % {"username_error": username_error, 
+											   "password_error": password_error, 
+											   "email_error": email_error,
+											   "username": username, 
+											   "email": email,
+											   "verify_error": verify_error})
+
+	def get(self):
+		self.write_form('','','','','','')
+
+	def post(self):
+		username = self.request.get("username")
+		password = self.request.get("password")
+		verify = self.request.get("verify")
+		email = self.request.get("email")
+
+		username_error = ''
+		password_error = ''
+		verify_error = ''
+		email_error = ''
+		valid = True
+		
+		if not self.valid_username(username):
+			username_error = "Username is invalid"
+			valid = False
+
+		if password != verify:
+			verify_error = 'Not matching passwords'
+			valid = False
+		else:
+			if not self.valid_password(password):
+				password_error = "Password is invalid"
+				valid = False
+
+		if email != '' and not self.valid_email(email):
+			email_error = "Email is invalid"
+			valid = False
+
+		if not valid:
+			self.write_form(username, email, username_error, password_error, 
+							verify_error, email_error)
+		else:
+			self.redirect("/welcome?username="+self.request.get("username"))
+
+
+
+class WelcomeHandler(webapp2.RequestHandler):
+	def get(self):
+		self.response.out.write('Welcome, ' + self.request.get("username") + '!')
+
 
 app = webapp2.WSGIApplication([('/ps2-1', PS21Handler),
-							   ('/testform', TestHandler)], 
+							   ('/ps2-2', PS22Handler),
+							   ('/welcome', WelcomeHandler)], 
 							   debug=True)
